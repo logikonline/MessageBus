@@ -17,16 +17,16 @@ namespace DSoft.MessageBus
 		/// </summary>
 		/// <param name="EventId">The event identifier.</param>
 		/// <returns></returns>
-		internal MessageBusEventHandler[] HandlersForEvent (String EventId)
+		internal MessageBusEventHandler[] HandlersForEvent(string EventId)
 		{
 			var results = from item in this.Items
-			              where !String.IsNullOrWhiteSpace (item.EventId)
-			              where item.EventId.ToLower ().Equals (EventId.ToLower ())
-			              where item.EventAction != null
-			              select item;
+						  where item != null
+						  where !string.IsNullOrWhiteSpace(item.EventId)
+						  where string.Equals(item.EventId, EventId, StringComparison.OrdinalIgnoreCase)
+						  where item.EventAction != null
+						  select item;
 
-			var array = results.ToArray ();
-			return array;
+			return results.ToArray();
 		}
 
 		/// <summary>
@@ -34,24 +34,22 @@ namespace DSoft.MessageBus
 		/// </summary>
 		/// <returns>The for event.</returns>
 		/// <param name="EventType">Event type.</param>
-		internal MessageBusEventHandler[] HandlersForEvent (Type EventType)
+		internal MessageBusEventHandler[] HandlersForEvent(Type EventType)
 		{
-			var results = from item in this.Items
-			              where item is TypedMessageBusEventHandler
-			              where item.EventAction != null
-			              select item;
+			var list = new List<MessageBusEventHandler>();
 
-			var list = new List<MessageBusEventHandler> ();
-
-			foreach (TypedMessageBusEventHandler item in results.ToArray())
+			foreach (var item in this.Items)
 			{
-				if (item.EventType != null && item.EventType.Equals (EventType))
+				if (item is TypedMessageBusEventHandler typedItem &&
+					typedItem.EventAction != null &&
+					typedItem.EventType != null &&
+					typedItem.EventType.Equals(EventType))
 				{
-					list.Add (item);
+					list.Add(typedItem);
 				}
 			}
 
-			return list.ToArray ();
+			return list.ToArray();
 		}
 
 		/// <summary>
